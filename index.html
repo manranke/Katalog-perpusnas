@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Perpustakaan — KKN Desa Sungai Besar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* ══════════════════════════════════════════════════════
+   DESIGN TOKENS
+══════════════════════════════════════════════════════ */
+:root {
+  --blue:    #1E88E5;
+  --blue-lt: #E3F2FD;
+  --blue-dk: #1565C0;
+  --sun:     #FFCA28;
+  --sun-lt:  #FFF9C4;
+  --sun-dk:  #F9A825;
+  --leaf:    #43A047;
+  --leaf-lt: #E8F5E9;
+  --coral:   #E53935;
+  --coral-lt:#FFEBEE;
+  --purple:  #7B1FA2;
+  --purple-lt:#F3E5F5;
+  --sky:     #EBF5FF;
+  --white:   #FFFFFF;
+  --gray:    #F5F5F5;
+  --gray2:   #E0E0E0;
+  --gray3:   #9E9E9E;
+  --txt:     #1A2E44;
+  --r:       16px;
+  --r-sm:    10px;
+  --shadow:  0 4px 16px rgba(30,136,229,.12);
+  --shadow2: 0 2px 8px rgba(0,0,0,.08);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Nunito', 'Segoe UI', system-ui, sans-serif;
+  background: var(--sky);
+  color: var(--txt);
+  font-size: 16px;
+  line-height: 1.5;
+  min-height: 100vh;
+}
+
+/* ══════════════════════════════════════════════════════
+   HEADER — Logo kiri (ULM) · Judul tengah · Logo kanan (KKN)
+══════════════════════════════════════════════════════ */
+.site-header {
+  background: var(--blue-dk);
+  color: white;
+  padding: 10px 20px;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 3px 16px rgba(21,101,192,.4);
+  position: sticky;
+  top: 0;
+  z-index: 200;
+}
+
+/* ─── Logo area kiri & kanan ─── */
+.header-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+.header-logo img {
+  height: 56px;
+  width:  56px;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 6px rgba(0,0,0,.35));
+  border-radius: 4px;
+  transition: transform .2s;
+}
+.header-logo img:hover { transform: scale(1.06); }
+
+.logo-info { line-height: 1.25; }
+.logo-info .lbl {
+  font-size: .65rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  opacity: .75;
+}
+.logo-info .name {
+  font-size: .82rem;
+  font-weight: 900;
+}
+
+/* ─── Judul tengah ─── */
+.header-center {
+  text-align: center;
+  padding: 4px 0;
+}
+.header-center .main-title {
+  font-size: 1.1rem;
+  font-weight: 900;
+  letter-spacing: -.01em;
+  line-height: 1.2;
+}
+.header-center .sub-title {
+  font-size: .72rem;
+  font-weight: 700;
+  opacity: .8;
+  margin-top: 2px;
+}
+.header-center .divider-dot {
+  display: inline-block;
+  width: 4px; height: 4px;
+  background: var(--sun);
+  border-radius: 50%;
+  margin: 0 5px;
+  vertical-align: middle;
+}
+
+/* ─── Jam di bawah logo kanan ─── */
+.header-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+#clockBox {
+  background: rgba(255,255,255,.15);
+  border: 1px solid rgba(255,255,255,.2);
+  border-radius: 8px;
+  padding: 5px 12px;
+  font-size: .78rem;
+  font-weight: 800;
+  letter-spacing: .02em;
+  white-space: nowrap;
+  text-align: right;
+}
+
+/* ══════════════════════════════════════════════════════
+   TAB SHELF — tampak seperti rak buku
+══════════════════════════════════════════════════════ */
+.tab-shelf {
+  background: var(--blue-dk);
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  padding: 0 20px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  border-top: 1px solid rgba(255,255,255,.1);
+}
+.tab-shelf::-webkit-scrollbar { display: none; }
+
+.tab-btn {
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 800;
+  font-size: .88rem;
+  padding: 10px 18px 12px;
+  border-radius: 12px 12px 0 0;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  white-space: nowrap;
+  transition: background .18s, color .18s;
+  color: rgba(255,255,255,.7);
+  background: rgba(255,255,255,.1);
+  position: relative;
+  top: 0;
+}
+.tab-btn:hover { background: rgba(255,255,255,.2); color: white; }
+.tab-btn.t-dash  { }
+.tab-btn.t-buku  { }
+.tab-btn.t-tamu  { }
+.tab-btn.t-pinjam{ }
+.tab-btn.active {
+  background: var(--sky);
+  color: var(--txt);
+  padding-bottom: 14px;
+  top: 1px;
+}
+.tab-btn .tab-icon { font-size: 1.15rem; }
+.tab-badge {
+  background: var(--coral);
+  color: white;
+  font-size: .68rem;
+  font-weight: 900;
+  border-radius: 20px;
+  padding: 1px 7px;
+  min-width: 20px;
+  text-align: center;
+}
+.tab-btn.active .tab-badge { background: var(--blue); }
+
+/* ══════════════════════════════════════════════════════
+   MAIN CONTENT
+══════════════════════════════════════════════════════ */
+main { max-width: 1100px; margin: 0 auto; padding: 22px 18px 48px; }
+.page { display: none; }
+.page.active { display: block; }
+
+/* ─── Section title ─── */
+.sec-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+.sec-title .dot {
+  width: 6px; height: 34px;
+  border-radius: 4px;
+  background: var(--blue);
+  flex-shrink: 0;
+}
+.sec-title h2 { font-size: 1.2rem; font-weight: 900; }
+.sec-title p  { font-size: .8rem; color: var(--gray3); margin-top: 2px; }
+
+/* ─── Stat cards ─── */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.stat-card {
+  background: white;
+  border-radius: var(--r);
+  padding: 16px 16px;
+  box-shadow: var(--shadow2);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.stat-card .sico {
+  width: 48px; height: 48px;
+  border-radius: 12px;
+  font-size: 1.5rem;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.stat-card .sval { font-size: 1.8rem; font-weight: 900; line-height: 1; }
+.stat-card .slbl { font-size: .73rem; font-weight: 700; color: var(--gray3); margin-top: 3px; }
+
+/* ─── Layout ─── */
+.two-col   { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+
+/* ─── Panel ─── */
+.panel { background: white; border-radius: var(--r); box-shadow: var(--shadow2); overflow: hidden; margin-bottom: 16px; }
+.panel:last-child { margin-bottom: 0; }
+.panel-head {
+  padding: 13px 18px;
+  border-bottom: 2px solid var(--sky);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.panel-head h3 { font-size: .92rem; font-weight: 800; }
+.panel-body { padding: 18px; }
+
+/* ─── Forms ─── */
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.form-full  { grid-column: 1 / -1; }
+.fg label {
+  display: block;
+  font-size: .78rem;
+  font-weight: 800;
+  color: var(--blue-dk);
+  margin-bottom: 5px;
+}
+.fg input,
+.fg select,
+.fg textarea {
+  width: 100%;
+  padding: 10px 13px;
+  border: 2px solid var(--gray2);
+  border-radius: var(--r-sm);
+  font-family: inherit;
+  font-size: .92rem;
+  font-weight: 600;
+  background: var(--sky);
+  color: var(--txt);
+  transition: border-color .15s, background .15s;
+}
+.fg input:focus,
+.fg select:focus,
+.fg textarea:focus { outline: none; border-color: var(--blue); background: white; }
+.fg textarea { resize: vertical; min-height: 68px; }
+
+/* ─── Buttons ─── */
+.btn {
+  font-family: inherit;
+  font-weight: 800;
+  font-size: .88rem;
+  border: none;
+  border-radius: var(--r-sm);
+  padding: 10px 20px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: transform .1s, box-shadow .1s, background .15s;
+}
+.btn:active { transform: scale(.97); }
+.btn-blue   { background: var(--blue);   color: white; box-shadow: 0 3px 10px rgba(30,136,229,.3); }
+.btn-blue:hover { background: var(--blue-dk); }
+.btn-sun    { background: var(--sun);    color: var(--txt); }
+.btn-sun:hover { background: var(--sun-dk); }
+.btn-leaf   { background: var(--leaf);   color: white; }
+.btn-leaf:hover { background: #388E3C; }
+.btn-coral  { background: var(--coral-lt); color: var(--coral); }
+.btn-coral:hover { background: #FFCDD2; }
+.btn-ghost  { background: var(--gray);   color: var(--gray3); }
+.btn-ghost:hover { background: var(--gray2); color: var(--txt); }
+.btn-sm  { padding: 6px 12px; font-size: .78rem; border-radius: 7px; }
+.btn-xs  { padding: 4px 9px;  font-size: .72rem; border-radius: 6px; }
+
+/* ─── Filter row ─── */
+.filter-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.filter-row input,
+.filter-row select {
+  padding: 8px 12px;
+  border: 2px solid var(--gray2);
+  border-radius: var(--r-sm);
+  font-family: inherit;
+  font-size: .86rem;
+  font-weight: 600;
+  background: white;
+}
+.filter-row input { min-width: 190px; }
+.filter-row input:focus,
+.filter-row select:focus { outline: none; border-color: var(--blue); }
+
+/* ─── Table ─── */
+.tbl-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+table { width: 100%; border-collapse: collapse; font-size: .84rem; }
+thead th {
+  background: var(--sky);
+  color: var(--blue-dk);
+  font-weight: 900;
+  font-size: .73rem;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  padding: 9px 12px;
+  text-align: left;
+  border-bottom: 2px solid var(--blue-lt);
+  white-space: nowrap;
+}
+tbody td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--gray2);
+  vertical-align: middle;
+}
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover td { background: var(--sky); }
+
+/* ─── Badges ─── */
+.badge {
+  display: inline-block;
+  padding: 3px 9px;
+  border-radius: 20px;
+  font-size: .72rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+.b-blue   { background: var(--blue-lt);   color: var(--blue-dk); }
+.b-leaf   { background: var(--leaf-lt);   color: #2E7D32; }
+.b-coral  { background: var(--coral-lt);  color: #C62828; }
+.b-sun    { background: var(--sun-lt);    color: #E65100; }
+.b-purple { background: var(--purple-lt); color: var(--purple); }
+.b-gray   { background: var(--gray);      color: var(--gray3); }
+
+/* ─── Empty ─── */
+.empty { text-align: center; padding: 32px 16px; color: var(--gray3); }
+.empty .eico { font-size: 2.6rem; margin-bottom: 8px; }
+.empty p { font-size: .86rem; font-weight: 700; }
+
+/* ─── Toast ─── */
+#toast {
+  position: fixed;
+  bottom: 20px; right: 20px;
+  z-index: 9999;
+  background: var(--txt);
+  color: white;
+  padding: 12px 20px;
+  border-radius: var(--r);
+  font-size: .88rem;
+  font-weight: 700;
+  box-shadow: 0 8px 24px rgba(0,0,0,.22);
+  transform: translateY(90px);
+  opacity: 0;
+  transition: all .25s ease;
+  pointer-events: none;
+  max-width: 300px;
+}
+#toast.show    { transform: translateY(0); opacity: 1; }
+#toast.t-ok   { background: var(--leaf); }
+#toast.t-err  { background: var(--coral); }
+
+/* ─── Modal ─── */
+.overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.45);
+  z-index: 800;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.overlay.open { display: flex; }
+.modal-box {
+  background: white;
+  border-radius: 20px;
+  padding: 26px;
+  max-width: 420px;
+  width: 100%;
+  box-shadow: 0 24px 64px rgba(0,0,0,.25);
+}
+.modal-box h3 { font-size: 1.05rem; font-weight: 900; margin-bottom: 8px; }
+.modal-box p  { color: var(--gray3); font-size: .88rem; margin-bottom: 18px; }
+.modal-foot   { display: flex; gap: 10px; justify-content: flex-end; }
+
+/* ─── Bar chart ─── */
+.bar-row { margin-bottom: 10px; }
+.bar-label { display: flex; justify-content: space-between; font-size: .78rem; font-weight: 700; margin-bottom: 4px; }
+.bar-track { background: var(--gray); border-radius: 20px; height: 9px; }
+.bar-fill  { border-radius: 20px; height: 9px; transition: width .4s; }
+
+/* ─── Alert ─── */
+.alert {
+  border-radius: var(--r-sm);
+  padding: 12px 14px;
+  font-size: .84rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+.alert.a-coral { background: var(--coral-lt); color: #B71C1C; }
+.alert .aic { font-size: 1.1rem; flex-shrink: 0; }
+
+/* ══════════════════════════════════════════════════════
+   RESPONSIVE
+══════════════════════════════════════════════════════ */
+
+/* ── Tablet (≤ 900px) ── */
+@media (max-width: 900px) {
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .two-col    { grid-template-columns: 1fr; }
+}
+
+/* ── Mobile (≤ 640px) ── */
+@media (max-width: 640px) {
+  /* Header: semua jadi 2 baris */
+  .site-header {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto;
+    padding: 8px 14px;
+    gap: 8px;
+  }
+  .header-logo-left  { grid-column: 1; grid-row: 1; }
+  .header-right      { grid-column: 2; grid-row: 1; align-items: flex-end; }
+  .header-center     { grid-column: 1 / -1; grid-row: 2; border-top: 1px solid rgba(255,255,255,.15); padding-top: 8px; }
+
+  .header-logo img   { height: 44px; width: 44px; }
+  .logo-info .name   { font-size: .76rem; }
+  .logo-info .lbl    { font-size: .6rem; }
+  .header-center .main-title { font-size: .95rem; }
+  #clockBox { font-size: .7rem; padding: 4px 9px; }
+
+  /* Tabs: lebih kompak */
+  .tab-btn { padding: 8px 12px 10px; font-size: .8rem; gap: 5px; }
+  .tab-btn .tab-icon { font-size: 1rem; }
+
+  /* Main */
+  main { padding: 14px 12px 40px; }
+  .stats-grid { grid-template-columns: 1fr 1fr; gap: 9px; }
+  .stat-card  { padding: 12px; gap: 9px; }
+  .stat-card .sico { width: 40px; height: 40px; font-size: 1.2rem; border-radius: 10px; }
+  .stat-card .sval { font-size: 1.5rem; }
+
+  /* Form */
+  .form-grid { grid-template-columns: 1fr; }
+  .form-full  { grid-column: 1; }
+
+  /* Filter */
+  .filter-row input  { min-width: 100%; }
+  .filter-row select { width: 100%; }
+  .filter-row { flex-direction: column; align-items: stretch; }
+  .panel-head { flex-direction: column; align-items: flex-start; }
+
+  /* Table: smaller font on mobile */
+  table { font-size: .78rem; }
+  thead th { font-size: .66rem; padding: 8px 8px; }
+  tbody td  { padding: 8px 8px; }
+}
+
+/* ── Very small (≤ 380px) ── */
+@media (max-width: 380px) {
+  .stat-card .slbl { font-size: .66rem; }
+  .tab-btn span:not(.tab-icon):not(.tab-badge) { display: none; }
+  .tab-btn { padding: 8px 11px 10px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════ HEADER ══════════ -->
+<header class="site-header">
+
+  <!-- KIRI: Logo ULM -->
+  <div class="header-logo header-logo-left">
+    <img src="logo-ulm.webp" alt="Logo ULM">
+    <div class="logo-info">
+      <div class="lbl">Universitas</div>
+      <div class="name">Lambung Mangkurat</div>
+    </div>
+  </div>
+
+  <!-- TENGAH: Judul Aplikasi -->
+  <div class="header-center">
+    <div class="main-title">📚 Perpustakaan Sekolah</div>
+    <div class="sub-title">
+      KKN Desa Sungai Besar
+      <span class="divider-dot"></span>
+      Ilmu Komunikasi 2026
+    </div>
+  </div>
+
+  <!-- KANAN: Logo KKN + Jam -->
+  <div class="header-right">
+    <div class="header-logo" style="flex-direction:row-reverse;">
+      <img src="logo-kkn.png" alt="Logo KKN Desa Sungai Besar">
+      <div class="logo-info" style="text-align:right;">
+        <div class="lbl">KKN</div>
+        <div class="name">Desa Sungai Besar</div>
+      </div>
+    </div>
+    <div id="clockBox">--:--</div>
+  </div>
+
+</header>
+
+<!-- ══════════ TAB SHELF ══════════ -->
+<div class="tab-shelf">
+  <button class="tab-btn t-dash active" onclick="buka('dashboard')">
+    <span class="tab-icon">🏠</span><span>Beranda</span>
+  </button>
+  <button class="tab-btn t-buku" onclick="buka('buku')">
+    <span class="tab-icon">📖</span><span>Katalog Buku</span>
+  </button>
+  <button class="tab-btn t-tamu" onclick="buka('tamu')">
+    <span class="tab-icon">👥</span><span>Log Pengunjung</span>
+    <span class="tab-badge" id="bdg-tamu">0</span>
+  </button>
+  <button class="tab-btn t-pinjam" onclick="buka('pinjam')">
+    <span class="tab-icon">📋</span><span>Log Peminjam</span>
+    <span class="tab-badge" id="bdg-pinjam">0</span>
+  </button>
+</div>
+
+<!-- ══════════ MAIN ══════════ -->
+<main>
+
+<!-- ▓▓ BERANDA ▓▓ -->
+<div class="page active" id="page-dashboard">
+  <div class="sec-title" style="margin-top:4px;">
+    <div class="dot"></div>
+    <div><h2>Selamat Datang 👋</h2><p id="dash-tgl">—</p></div>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="sico" style="background:var(--blue-lt);">📖</div>
+      <div><div class="sval" id="st-judul" style="color:var(--blue);">0</div><div class="slbl">Judul Buku</div></div>
+    </div>
+    <div class="stat-card">
+      <div class="sico" style="background:var(--sun-lt);">📦</div>
+      <div><div class="sval" id="st-eks" style="color:var(--sun-dk);">0</div><div class="slbl">Total Eksemplar</div></div>
+    </div>
+    <div class="stat-card">
+      <div class="sico" style="background:var(--leaf-lt);">👥</div>
+      <div><div class="sval" id="st-hari" style="color:var(--leaf);">0</div><div class="slbl">Pengunjung Hari Ini</div></div>
+    </div>
+    <div class="stat-card">
+      <div class="sico" style="background:var(--coral-lt);">📋</div>
+      <div><div class="sval" id="st-aktif" style="color:var(--coral);">0</div><div class="slbl">Buku Dipinjam</div></div>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <div class="panel">
+      <div class="panel-head" style="background:var(--blue-lt);border-color:var(--blue-lt);"><h3>📖 Buku Terbaru Ditambahkan</h3></div>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Judul</th><th>Pengarang</th><th>Kategori</th></tr></thead>
+        <tbody id="db-buku"></tbody>
+      </table></div>
+    </div>
+    <div class="panel">
+      <div class="panel-head" style="background:var(--purple-lt);border-color:var(--purple-lt);"><h3>📋 Peminjaman Aktif</h3></div>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Nama</th><th>Kelas</th><th>Judul</th><th>Kembali</th></tr></thead>
+        <tbody id="db-pinjam"></tbody>
+      </table></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head" style="background:var(--leaf-lt);border-color:var(--leaf-lt);"><h3>👥 Kunjungan Terbaru</h3></div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Nama</th><th>Kelas</th><th>Keperluan</th><th>Tanggal</th><th>Masuk</th><th>Keluar</th></tr></thead>
+      <tbody id="db-tamu"></tbody>
+    </table></div>
+  </div>
+</div>
+
+<!-- ▓▓ KATALOG BUKU ▓▓ -->
+<div class="page" id="page-buku">
+  <div class="sec-title" style="margin-top:4px;">
+    <div class="dot" style="background:var(--blue);"></div>
+    <div><h2>Katalog Buku</h2><p>Data koleksi buku perpustakaan</p></div>
+  </div>
+  <div class="two-col">
+    <div class="panel">
+      <div class="panel-head" style="background:var(--blue-lt);border-color:var(--blue-lt);"><h3 id="frm-buku-ttl">➕ Tambah Buku Baru</h3></div>
+      <div class="panel-body">
+        <input type="hidden" id="b-id">
+        <div class="form-grid">
+          <div class="fg"><label>Kode Buku ✱</label><input id="b-kode" placeholder="BK-001"></div>
+          <div class="fg"><label>Kategori ✱</label>
+            <select id="b-kat">
+              <option value="">— Pilih —</option>
+              <option>Cerita Anak</option><option>Dongeng &amp; Fabel</option>
+              <option>Pengetahuan Umum</option><option>Matematika</option>
+              <option>Sains &amp; Alam</option><option>Agama</option>
+              <option>Sejarah</option><option>Bahasa &amp; Sastra</option>
+              <option>Ensiklopedia</option><option>Komik Edukasi</option><option>Lainnya</option>
+            </select>
+          </div>
+          <div class="fg form-full"><label>Judul Buku ✱</label><input id="b-judul" placeholder="Tulis judul buku"></div>
+          <div class="fg form-full"><label>Pengarang ✱</label><input id="b-penulis" placeholder="Nama pengarang"></div>
+          <div class="fg"><label>Penerbit</label><input id="b-penerbit" placeholder="Nama penerbit"></div>
+          <div class="fg"><label>Tahun Terbit</label><input id="b-tahun" type="number" placeholder="2024" min="1900" max="2099"></div>
+          <div class="fg"><label>Jumlah Eksemplar ✱</label><input id="b-eks" type="number" placeholder="1" min="1"></div>
+          <div class="fg"><label>Lokasi Rak</label><input id="b-rak" placeholder="Rak A-2"></div>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;">
+          <button class="btn btn-blue" onclick="simpanBuku()">💾 Simpan Buku</button>
+          <button class="btn btn-ghost" onclick="resetBuku()">↺ Batal</button>
+        </div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-head"><h3>📊 Buku per Kategori</h3></div>
+      <div class="panel-body" id="chart-kat" style="min-height:200px;"></div>
+    </div>
+  </div>
+  <div class="panel">
+    <div class="panel-head">
+      <h3>Daftar Buku &nbsp;<span style="background:var(--blue-lt);color:var(--blue-dk);border-radius:20px;padding:2px 10px;font-size:.78rem;" id="jml-buku">0</span></h3>
+      <div class="filter-row">
+        <input id="cari-buku" placeholder="🔍 Cari judul / pengarang / kode..." oninput="renderBuku()">
+        <select id="flt-kat" onchange="renderBuku()">
+          <option value="">Semua Kategori</option>
+          <option>Cerita Anak</option><option>Dongeng &amp; Fabel</option><option>Pengetahuan Umum</option>
+          <option>Matematika</option><option>Sains &amp; Alam</option><option>Agama</option>
+          <option>Sejarah</option><option>Bahasa &amp; Sastra</option><option>Ensiklopedia</option>
+          <option>Komik Edukasi</option><option>Lainnya</option>
+        </select>
+        <button class="btn btn-ghost btn-sm" onclick="exportCSV('buku')">⬇ CSV</button>
+      </div>
+    </div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Kode</th><th>Judul</th><th>Pengarang</th><th>Penerbit</th><th>Tahun</th><th>Kategori</th><th>Eks.</th><th>Rak</th><th>Aksi</th></tr></thead>
+      <tbody id="tb-buku"></tbody>
+    </table></div>
+  </div>
+</div>
+
+<!-- ▓▓ LOG PENGUNJUNG ▓▓ -->
+<div class="page" id="page-tamu">
+  <div class="sec-title" style="margin-top:4px;">
+    <div class="dot" style="background:var(--leaf);"></div>
+    <div><h2>Log Buku Pengunjung</h2><p>Catat setiap siswa yang datang ke perpustakaan</p></div>
+  </div>
+  <div class="two-col">
+    <div class="panel">
+      <div class="panel-head" style="background:var(--leaf-lt);border-color:var(--leaf-lt);"><h3>✏️ Catat Kunjungan Baru</h3></div>
+      <div class="panel-body">
+        <div class="form-grid">
+          <div class="fg form-full"><label>Nama Siswa ✱</label><input id="pv-nama" placeholder="Nama lengkap siswa"></div>
+          <div class="fg"><label>Kelas ✱</label><input id="pv-kelas" placeholder="Contoh: 4A"></div>
+          <div class="fg"><label>Keperluan ✱</label>
+            <select id="pv-perlu">
+              <option value="">— Pilih —</option>
+              <option>Membaca Buku</option><option>Meminjam Buku</option>
+              <option>Mengembalikan Buku</option><option>Mengerjakan Tugas</option>
+              <option>Mencari Referensi</option><option>Lainnya</option>
+            </select>
+          </div>
+          <div class="fg"><label>Tanggal ✱</label><input id="pv-tgl" type="date"></div>
+          <div class="fg"><label>Jam Masuk ✱</label><input id="pv-masuk" type="time"></div>
+          <div class="fg"><label>Jam Keluar</label><input id="pv-keluar" type="time"></div>
+        </div>
+        <button class="btn btn-leaf" onclick="simpanTamu()" style="margin-top:16px;">✅ Catat Kunjungan</button>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-head"><h3>📈 Statistik Kunjungan</h3></div>
+      <div class="panel-body" id="stat-tamu" style="min-height:200px;"></div>
+    </div>
+  </div>
+  <div class="panel">
+    <div class="panel-head">
+      <h3>Riwayat Kunjungan &nbsp;<span style="background:var(--leaf-lt);color:#2E7D32;border-radius:20px;padding:2px 10px;font-size:.78rem;" id="jml-tamu">0</span></h3>
+      <div class="filter-row">
+        <input id="cari-tamu" placeholder="🔍 Cari nama siswa..." oninput="renderTamu()">
+        <input id="flt-tgl-tamu" type="date" onchange="renderTamu()">
+        <button class="btn btn-ghost btn-sm" onclick="document.getElementById('flt-tgl-tamu').value='';renderTamu()">Semua</button>
+        <button class="btn btn-ghost btn-sm" onclick="exportCSV('tamu')">⬇ CSV</button>
+      </div>
+    </div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>#</th><th>Nama</th><th>Kelas</th><th>Keperluan</th><th>Tanggal</th><th>Masuk</th><th>Keluar</th><th>Aksi</th></tr></thead>
+      <tbody id="tb-tamu"></tbody>
+    </table></div>
+  </div>
+</div>
+
+<!-- ▓▓ LOG PEMINJAM ▓▓ -->
+<div class="page" id="page-pinjam">
+  <div class="sec-title" style="margin-top:4px;">
+    <div class="dot" style="background:var(--purple);"></div>
+    <div><h2>Log Buku Peminjam</h2><p>Catat peminjaman dan pengembalian buku</p></div>
+  </div>
+  <div class="two-col">
+    <div class="panel">
+      <div class="panel-head" style="background:var(--purple-lt);border-color:var(--purple-lt);"><h3>✏️ Catat Peminjaman Baru</h3></div>
+      <div class="panel-body">
+        <div class="form-grid">
+          <div class="fg form-full"><label>Nama Peminjam ✱</label><input id="pm-nama" placeholder="Nama lengkap siswa"></div>
+          <div class="fg"><label>Kelas ✱</label><input id="pm-kelas" placeholder="Contoh: 5B"></div>
+          <div class="fg"><label>Kode Buku</label><input id="pm-kode" placeholder="BK-001" oninput="autoIsiJudul()"></div>
+          <div class="fg form-full"><label>Judul Buku ✱</label><input id="pm-judul" placeholder="Ketik judul buku" list="dl-judul"><datalist id="dl-judul"></datalist></div>
+          <div class="fg"><label>Tanggal Pinjam ✱</label><input id="pm-tgl-p" type="date"></div>
+          <div class="fg"><label>Batas Pengembalian ✱</label><input id="pm-tgl-k" type="date"></div>
+          <div class="fg form-full"><label>Keterangan</label><textarea id="pm-ket" placeholder="Catatan tambahan (opsional)"></textarea></div>
+        </div>
+        <button class="btn btn-blue" onclick="simpanPinjam()" style="margin-top:16px;">📋 Catat Peminjaman</button>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-head" style="background:var(--coral-lt);border-color:var(--coral-lt);"><h3 style="color:var(--coral);">⚠️ Belum Dikembalikan / Terlambat</h3></div>
+      <div class="panel-body" id="panel-telat" style="min-height:200px;"></div>
+    </div>
+  </div>
+  <div class="panel">
+    <div class="panel-head">
+      <h3>Riwayat Peminjaman &nbsp;<span style="background:var(--purple-lt);color:var(--purple);border-radius:20px;padding:2px 10px;font-size:.78rem;" id="jml-pinjam">0</span></h3>
+      <div class="filter-row">
+        <input id="cari-pinjam" placeholder="🔍 Cari nama / judul..." oninput="renderPinjam()">
+        <select id="flt-status" onchange="renderPinjam()">
+          <option value="">Semua Status</option>
+          <option value="Dipinjam">Dipinjam</option>
+          <option value="Dikembalikan">Dikembalikan</option>
+        </select>
+        <button class="btn btn-ghost btn-sm" onclick="exportCSV('pinjam')">⬇ CSV</button>
+      </div>
+    </div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>#</th><th>Nama</th><th>Kelas</th><th>Judul Buku</th><th>Tgl Pinjam</th><th>Batas Kembali</th><th>Status</th><th>Tgl Kembali</th><th>Aksi</th></tr></thead>
+      <tbody id="tb-pinjam"></tbody>
+    </table></div>
+  </div>
+</div>
+
+</main>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<!-- Modal Hapus -->
+<div class="overlay" id="ov-hapus">
+  <div class="modal-box">
+    <h3>🗑️ Hapus Data?</h3>
+    <p id="ov-hapus-txt">Apakah Anda yakin ingin menghapus data ini?</p>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="tutupOverlay()">Batal</button>
+      <button class="btn btn-coral" id="btn-hapus-ok">Ya, Hapus</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Jam Keluar -->
+<div class="overlay" id="ov-keluar">
+  <div class="modal-box">
+    <h3>🚪 Catat Jam Keluar</h3>
+    <div class="fg" style="margin-bottom:18px;"><label>Jam Keluar</label><input type="time" id="inp-keluar"></div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="tutupOverlay()">Batal</button>
+      <button class="btn btn-leaf" id="btn-keluar-ok">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ── STORAGE ── */
+const DB = {
+  buku:  () => JSON.parse(localStorage.getItem('sd_buku')  || '[]'),
+  tamu:  () => JSON.parse(localStorage.getItem('sd_tamu')  || '[]'),
+  pinjam:() => JSON.parse(localStorage.getItem('sd_pinjam')|| '[]'),
+  set:(k,v) => localStorage.setItem('sd_'+k, JSON.stringify(v)),
+};
+const uid  = () => Date.now().toString(36) + Math.random().toString(36).slice(2,5);
+const hari = () => new Date().toISOString().slice(0,10);
+const jam  = () => new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
+const fmt  = d  => d ? new Date(d+'T00:00:00').toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric'}) : '—';
+
+/* ── CLOCK ── */
+function tickClock(){
+  const n = new Date();
+  document.getElementById('clockBox').textContent =
+    n.toLocaleDateString('id-ID',{weekday:'short',day:'numeric',month:'short'}) +
+    ' · ' + n.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+}
+setInterval(tickClock,1000); tickClock();
+document.getElementById('dash-tgl').textContent =
+  new Date().toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+
+/* ── TOAST ── */
+let _tt;
+function toast(msg,type=''){
+  const el=document.getElementById('toast');
+  el.textContent=msg; el.className='show '+type;
+  clearTimeout(_tt); _tt=setTimeout(()=>el.className='',3000);
+}
+
+/* ── NAV ── */
+function buka(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  const map={dashboard:'dash',buku:'buku',tamu:'tamu',pinjam:'pinjam'};
+  document.querySelector('.tab-btn.t-'+map[id]).classList.add('active');
+  if(id==='dashboard') renderDashboard();
+  if(id==='buku')  { renderBuku(); renderKatChart(); }
+  if(id==='tamu')  { renderTamu(); renderStatTamu(); }
+  if(id==='pinjam'){ renderPinjam(); renderTelat(); isiDatalistBuku(); }
+}
+
+/* ── OVERLAY ── */
+let _hapusCb=null;
+function konfirmHapus(teks,cb){ document.getElementById('ov-hapus-txt').textContent=teks; _hapusCb=cb; document.getElementById('ov-hapus').classList.add('open'); }
+document.getElementById('btn-hapus-ok').onclick=()=>{ _hapusCb&&_hapusCb(); tutupOverlay(); };
+function tutupOverlay(){ document.querySelectorAll('.overlay').forEach(o=>o.classList.remove('open')); }
+
+/* ══ KATALOG BUKU ══ */
+function simpanBuku(){
+  const id=document.getElementById('b-id').value;
+  const kode=document.getElementById('b-kode').value.trim();
+  const judul=document.getElementById('b-judul').value.trim();
+  const penulis=document.getElementById('b-penulis').value.trim();
+  const kat=document.getElementById('b-kat').value;
+  const eks=parseInt(document.getElementById('b-eks').value)||0;
+  if(!kode||!judul||!penulis||!kat||eks<1){toast('⚠️ Isi semua kolom bertanda ✱','t-err');return;}
+  let data=DB.buku();
+  if(!id){
+    if(data.find(b=>b.kode===kode)){toast('Kode buku sudah dipakai','t-err');return;}
+    data.unshift({id:uid(),kode,judul,penulis,kat,eks,penerbit:document.getElementById('b-penerbit').value.trim(),tahun:document.getElementById('b-tahun').value,rak:document.getElementById('b-rak').value.trim(),dibuat:hari()});
+    toast('✅ Buku berhasil ditambahkan!','t-ok');
+  } else {
+    const i=data.findIndex(b=>b.id===id);
+    if(i>=0)data[i]={...data[i],kode,judul,penulis,kat,eks,penerbit:document.getElementById('b-penerbit').value.trim(),tahun:document.getElementById('b-tahun').value,rak:document.getElementById('b-rak').value.trim()};
+    toast('✅ Data buku diperbarui!','t-ok');
+  }
+  DB.set('buku',data); resetBuku(); renderBuku(); renderKatChart(); updateBadges();
+}
+function resetBuku(){
+  ['b-id','b-kode','b-judul','b-penulis','b-penerbit','b-tahun','b-rak'].forEach(x=>document.getElementById(x).value='');
+  document.getElementById('b-kat').value=''; document.getElementById('b-eks').value='';
+  document.getElementById('frm-buku-ttl').textContent='➕ Tambah Buku Baru';
+}
+function editBuku(id){
+  const b=DB.buku().find(x=>x.id===id); if(!b)return;
+  document.getElementById('b-id').value=b.id; document.getElementById('b-kode').value=b.kode;
+  document.getElementById('b-judul').value=b.judul; document.getElementById('b-penulis').value=b.penulis;
+  document.getElementById('b-kat').value=b.kat; document.getElementById('b-eks').value=b.eks;
+  document.getElementById('b-penerbit').value=b.penerbit||''; document.getElementById('b-tahun').value=b.tahun||'';
+  document.getElementById('b-rak').value=b.rak||'';
+  document.getElementById('frm-buku-ttl').textContent='✏️ Edit Buku';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function hapusBuku(id){
+  const b=DB.buku().find(x=>x.id===id);
+  konfirmHapus(`Hapus buku "${b?.judul}"?`,()=>{ DB.set('buku',DB.buku().filter(x=>x.id!==id)); renderBuku();renderKatChart();updateBadges();toast('Buku dihapus'); });
+}
+function renderBuku(){
+  const q=document.getElementById('cari-buku').value.toLowerCase();
+  const kat=document.getElementById('flt-kat').value;
+  const data=DB.buku().filter(b=>(!q||b.judul.toLowerCase().includes(q)||b.penulis.toLowerCase().includes(q)||b.kode.toLowerCase().includes(q))&&(!kat||b.kat===kat));
+  document.getElementById('jml-buku').textContent=data.length;
+  const tb=document.getElementById('tb-buku');
+  if(!data.length){tb.innerHTML=`<tr><td colspan="9"><div class="empty"><div class="eico">📚</div><p>Belum ada buku${q||kat?' yang cocok':'. Yuk tambahkan!'}.</p></div></td></tr>`;return;}
+  tb.innerHTML=data.map(b=>`<tr>
+    <td><span style="background:var(--blue-lt);color:var(--blue-dk);padding:3px 8px;border-radius:6px;font-size:.76rem;font-weight:800;">${b.kode}</span></td>
+    <td><b>${b.judul}</b></td><td>${b.penulis}</td><td>${b.penerbit||'—'}</td><td>${b.tahun||'—'}</td>
+    <td><span class="badge b-blue">${b.kat}</span></td>
+    <td style="text-align:center;font-weight:800;">${b.eks}</td><td>${b.rak||'—'}</td>
+    <td style="white-space:nowrap;"><button class="btn btn-ghost btn-xs" onclick="editBuku('${b.id}')">✏️</button> <button class="btn btn-coral btn-xs" onclick="hapusBuku('${b.id}')">🗑️</button></td>
+  </tr>`).join('');
+}
+function renderKatChart(){
+  const map={};DB.buku().forEach(b=>{map[b.kat]=(map[b.kat]||0)+1;});
+  const sorted=Object.entries(map).sort((a,b)=>b[1]-a[1]);
+  const max=sorted[0]?.[1]||1;
+  const clrs=['#1E88E5','#FFCA28','#43A047','#E53935','#7B1FA2','#F06292','#0288D1','#FF7043','#00897B'];
+  const el=document.getElementById('chart-kat');
+  if(!sorted.length){el.innerHTML=`<div class="empty"><div class="eico">📊</div><p>Belum ada buku.</p></div>`;return;}
+  el.innerHTML=sorted.map(([k,v],i)=>`<div class="bar-row"><div class="bar-label"><span>${k}</span><b>${v} buku</b></div><div class="bar-track"><div class="bar-fill" style="width:${(v/max*100).toFixed(1)}%;background:${clrs[i%clrs.length]};"></div></div></div>`).join('');
+}
+
+/* ══ LOG PENGUNJUNG ══ */
+document.getElementById('pv-tgl').value=hari();
+document.getElementById('pv-masuk').value=jam();
+function simpanTamu(){
+  const nama=document.getElementById('pv-nama').value.trim();
+  const kelas=document.getElementById('pv-kelas').value.trim();
+  const perlu=document.getElementById('pv-perlu').value;
+  const tgl=document.getElementById('pv-tgl').value;
+  const masuk=document.getElementById('pv-masuk').value;
+  if(!nama||!kelas||!perlu||!tgl||!masuk){toast('⚠️ Isi semua kolom bertanda ✱','t-err');return;}
+  const data=DB.tamu();
+  data.unshift({id:uid(),nama,kelas,perlu,tgl,masuk,keluar:document.getElementById('pv-keluar').value});
+  DB.set('tamu',data);toast('✅ Kunjungan berhasil dicatat!','t-ok');
+  ['pv-nama','pv-kelas','pv-keluar'].forEach(x=>document.getElementById(x).value='');
+  document.getElementById('pv-perlu').value='';
+  document.getElementById('pv-masuk').value=jam();
+  renderTamu();renderStatTamu();updateBadges();
+}
+let _keluarId=null;
+function catatKeluar(id){
+  _keluarId=id; document.getElementById('inp-keluar').value=jam();
+  document.getElementById('ov-keluar').classList.add('open');
+  document.getElementById('btn-keluar-ok').onclick=()=>{
+    const j=document.getElementById('inp-keluar').value;
+    if(!j){toast('Masukkan jam keluar','t-err');return;}
+    const data=DB.tamu(); const i=data.findIndex(x=>x.id===_keluarId);
+    if(i>=0)data[i].keluar=j; DB.set('tamu',data);
+    tutupOverlay();renderTamu();toast('✅ Jam keluar dicatat!','t-ok');
+  };
+}
+function hapusTamu(id){
+  const t=DB.tamu().find(x=>x.id===id);
+  konfirmHapus(`Hapus kunjungan "${t?.nama}"?`,()=>{DB.set('tamu',DB.tamu().filter(x=>x.id!==id));renderTamu();renderStatTamu();updateBadges();toast('Data dihapus');});
+}
+function renderTamu(){
+  const q=document.getElementById('cari-tamu').value.toLowerCase();
+  const tg=document.getElementById('flt-tgl-tamu').value;
+  const data=DB.tamu().filter(t=>(!q||t.nama.toLowerCase().includes(q))&&(!tg||t.tgl===tg));
+  document.getElementById('jml-tamu').textContent=data.length;
+  const tb=document.getElementById('tb-tamu');
+  if(!data.length){tb.innerHTML=`<tr><td colspan="8"><div class="empty"><div class="eico">👥</div><p>Belum ada data kunjungan.</p></div></td></tr>`;return;}
+  tb.innerHTML=data.map((t,i)=>`<tr>
+    <td style="color:var(--gray3);font-size:.78rem;">${data.length-i}</td>
+    <td><b>${t.nama}</b></td><td><span class="badge b-leaf">${t.kelas}</span></td>
+    <td><span class="badge b-blue">${t.perlu}</span></td><td>${fmt(t.tgl)}</td><td>${t.masuk}</td>
+    <td>${t.keluar?`<span class="badge b-gray">${t.keluar}</span>`:`<button class="btn btn-sun btn-xs" onclick="catatKeluar('${t.id}')">Catat Keluar</button>`}</td>
+    <td><button class="btn btn-coral btn-xs" onclick="hapusTamu('${t.id}')">🗑️</button></td>
+  </tr>`).join('');
+}
+function renderStatTamu(){
+  const data=DB.tamu();
+  const hariIni=data.filter(t=>t.tgl===hari()).length;
+  const bulan=data.filter(t=>t.tgl?.slice(0,7)===hari().slice(0,7)).length;
+  const map={};data.forEach(t=>{map[t.perlu]=(map[t.perlu]||0)+1;});
+  const sorted=Object.entries(map).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  const max=sorted[0]?.[1]||1;
+  document.getElementById('stat-tamu').innerHTML=`
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
+      <div style="background:var(--leaf-lt);border-radius:10px;padding:12px;text-align:center;"><div style="font-size:1.7rem;font-weight:900;color:var(--leaf);">${hariIni}</div><div style="font-size:.74rem;font-weight:700;color:var(--gray3);">Hari Ini</div></div>
+      <div style="background:var(--blue-lt);border-radius:10px;padding:12px;text-align:center;"><div style="font-size:1.7rem;font-weight:900;color:var(--blue);">${bulan}</div><div style="font-size:.74rem;font-weight:700;color:var(--gray3);">Bulan Ini</div></div>
+    </div>
+    ${sorted.length?`<div style="font-size:.72rem;font-weight:800;color:var(--gray3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;">Keperluan Terbanyak</div>${sorted.map(([k,v])=>`<div class="bar-row"><div class="bar-label"><span>${k}</span><b>${v}×</b></div><div class="bar-track"><div class="bar-fill" style="width:${(v/max*100).toFixed(1)}%;background:var(--leaf);"></div></div></div>`).join('')}`:'<div class="empty"><div class="eico">📊</div><p>Belum ada data.</p></div>'}`;
+}
+
+/* ══ LOG PEMINJAM ══ */
+document.getElementById('pm-tgl-p').value=hari();
+(()=>{const d=new Date();d.setDate(d.getDate()+7);document.getElementById('pm-tgl-k').value=d.toISOString().slice(0,10);})();
+function isiDatalistBuku(){ document.getElementById('dl-judul').innerHTML=DB.buku().map(b=>`<option value="${b.judul}">`).join(''); }
+function autoIsiJudul(){
+  const kode=document.getElementById('pm-kode').value.trim().toUpperCase();
+  const b=DB.buku().find(x=>x.kode.toUpperCase()===kode);
+  if(b)document.getElementById('pm-judul').value=b.judul;
+}
+function simpanPinjam(){
+  const nama=document.getElementById('pm-nama').value.trim();
+  const kelas=document.getElementById('pm-kelas').value.trim();
+  const judul=document.getElementById('pm-judul').value.trim();
+  const tglP=document.getElementById('pm-tgl-p').value;
+  const tglK=document.getElementById('pm-tgl-k').value;
+  if(!nama||!kelas||!judul||!tglP||!tglK){toast('⚠️ Isi semua kolom bertanda ✱','t-err');return;}
+  const data=DB.pinjam();
+  data.unshift({id:uid(),nama,kelas,judul,tglP,tglK,kode:document.getElementById('pm-kode').value.trim(),ket:document.getElementById('pm-ket').value.trim(),status:'Dipinjam',tglBali:''});
+  DB.set('pinjam',data);toast('✅ Peminjaman berhasil dicatat!','t-ok');
+  ['pm-nama','pm-kelas','pm-kode','pm-judul','pm-ket'].forEach(x=>document.getElementById(x).value='');
+  document.getElementById('pm-tgl-p').value=hari();
+  const d=new Date();d.setDate(d.getDate()+7);document.getElementById('pm-tgl-k').value=d.toISOString().slice(0,10);
+  renderPinjam();renderTelat();updateBadges();
+}
+function kembalikan(id){
+  const data=DB.pinjam();const i=data.findIndex(x=>x.id===id);
+  if(i>=0){data[i].status='Dikembalikan';data[i].tglBali=hari();}
+  DB.set('pinjam',data);renderPinjam();renderTelat();updateBadges();toast('✅ Buku berhasil dikembalikan!','t-ok');
+}
+function hapusPinjam(id){
+  const p=DB.pinjam().find(x=>x.id===id);
+  konfirmHapus(`Hapus peminjaman "${p?.nama} — ${p?.judul}"?`,()=>{DB.set('pinjam',DB.pinjam().filter(x=>x.id!==id));renderPinjam();renderTelat();updateBadges();toast('Data dihapus');});
+}
+function renderPinjam(){
+  const q=document.getElementById('cari-pinjam').value.toLowerCase();
+  const st=document.getElementById('flt-status').value;
+  const data=DB.pinjam().filter(p=>(!q||p.nama.toLowerCase().includes(q)||p.judul.toLowerCase().includes(q))&&(!st||p.status===st));
+  document.getElementById('jml-pinjam').textContent=data.length;
+  const tb=document.getElementById('tb-pinjam');
+  if(!data.length){tb.innerHTML=`<tr><td colspan="9"><div class="empty"><div class="eico">📋</div><p>Belum ada data peminjaman.</p></div></td></tr>`;return;}
+  const hariIni=hari();
+  tb.innerHTML=data.map((p,i)=>{
+    const telat=p.status==='Dipinjam'&&p.tglK<hariIni;
+    const badge=p.status==='Dikembalikan'?`<span class="badge b-leaf">Dikembalikan</span>`:telat?`<span class="badge b-coral">⚠ Terlambat</span>`:`<span class="badge b-sun">Dipinjam</span>`;
+    return `<tr ${telat?'style="background:#FFF5F5;"':''}>
+      <td style="color:var(--gray3);font-size:.78rem;">${data.length-i}</td>
+      <td><b>${p.nama}</b></td><td><span class="badge b-purple">${p.kelas}</span></td>
+      <td>${p.judul}${p.kode?`<br><span style="font-size:.7rem;color:var(--gray3);">${p.kode}</span>`:''}</td>
+      <td>${fmt(p.tglP)}</td><td>${fmt(p.tglK)}</td><td>${badge}</td><td>${p.tglBali?fmt(p.tglBali):'—'}</td>
+      <td style="white-space:nowrap;">${p.status==='Dipinjam'?`<button class="btn btn-leaf btn-xs" onclick="kembalikan('${p.id}')">✅ Kembali</button> `:''}<button class="btn btn-coral btn-xs" onclick="hapusPinjam('${p.id}')">🗑️</button></td>
+    </tr>`;
+  }).join('');
+}
+function renderTelat(){
+  const hariIni=hari();
+  const list=DB.pinjam().filter(p=>p.status==='Dipinjam'&&p.tglK<hariIni);
+  const el=document.getElementById('panel-telat');
+  if(!list.length){el.innerHTML=`<div class="empty"><div class="eico">🎉</div><p>Tidak ada buku yang terlambat!</p></div>`;return;}
+  el.innerHTML=list.map(p=>{
+    const ht=Math.floor((new Date(hariIni)-new Date(p.tglK))/86400000);
+    return `<div class="alert a-coral" style="border-radius:12px;align-items:center;"><span class="aic">⏰</span>
+      <div style="flex:1;"><b>${p.nama}</b> <span class="badge b-coral">${p.kelas}</span><br>
+      <span style="font-size:.8rem;">${p.judul}</span><br>
+      <span style="font-size:.75rem;">Harusnya kembali ${fmt(p.tglK)} — <b>${ht} hari terlambat</b></span></div>
+      <button class="btn btn-leaf btn-xs" onclick="kembalikan('${p.id}')">✅</button>
+    </div>`;
+  }).join('');
+}
+
+/* ══ DASHBOARD ══ */
+function renderDashboard(){
+  const buku=DB.buku(),tamu=DB.tamu(),pinjam=DB.pinjam(),hariIni=hari();
+  document.getElementById('st-judul').textContent=buku.length;
+  document.getElementById('st-eks').textContent=buku.reduce((s,b)=>s+(b.eks||0),0);
+  document.getElementById('st-hari').textContent=tamu.filter(t=>t.tgl===hariIni).length;
+  document.getElementById('st-aktif').textContent=pinjam.filter(p=>p.status==='Dipinjam').length;
+  document.getElementById('db-buku').innerHTML=buku.slice(0,5).map(b=>`<tr><td>${b.judul}</td><td>${b.penulis}</td><td><span class="badge b-blue">${b.kat}</span></td></tr>`).join('')||`<tr><td colspan="3"><div class="empty" style="padding:12px;"><p>Belum ada buku.</p></div></td></tr>`;
+  document.getElementById('db-pinjam').innerHTML=pinjam.filter(p=>p.status==='Dipinjam').slice(0,5).map(p=>{const t=p.tglK<hariIni;return `<tr><td>${p.nama}</td><td><span class="badge b-purple">${p.kelas}</span></td><td>${p.judul}</td><td>${t?`<span class="badge b-coral">${fmt(p.tglK)}</span>`:fmt(p.tglK)}</td></tr>`;}).join('')||`<tr><td colspan="4"><div class="empty" style="padding:12px;"><p>Tidak ada peminjaman aktif.</p></div></td></tr>`;
+  document.getElementById('db-tamu').innerHTML=tamu.slice(0,5).map(t=>`<tr><td>${t.nama}</td><td><span class="badge b-leaf">${t.kelas}</span></td><td>${t.perlu}</td><td>${fmt(t.tgl)}</td><td>${t.masuk}</td><td>${t.keluar||'—'}</td></tr>`).join('')||`<tr><td colspan="6"><div class="empty" style="padding:12px;"><p>Belum ada kunjungan.</p></div></td></tr>`;
+}
+
+/* ══ BADGES ══ */
+function updateBadges(){
+  document.getElementById('bdg-tamu').textContent=DB.tamu().filter(t=>t.tgl===hari()).length;
+  document.getElementById('bdg-pinjam').textContent=DB.pinjam().filter(p=>p.status==='Dipinjam').length;
+  renderDashboard();
+}
+
+/* ══ EXPORT CSV ══ */
+function exportCSV(jenis){
+  let h,r,fn;
+  if(jenis==='buku'){h=['Kode','Judul','Pengarang','Penerbit','Tahun','Kategori','Eksemplar','Rak'];r=DB.buku().map(b=>[b.kode,b.judul,b.penulis,b.penerbit,b.tahun,b.kat,b.eks,b.rak]);fn='katalog-buku.csv';}
+  else if(jenis==='tamu'){h=['Nama','Kelas','Keperluan','Tanggal','Jam Masuk','Jam Keluar'];r=DB.tamu().map(t=>[t.nama,t.kelas,t.perlu,t.tgl,t.masuk,t.keluar]);fn='log-pengunjung.csv';}
+  else{h=['Nama','Kelas','Kode Buku','Judul Buku','Tgl Pinjam','Batas Kembali','Status','Tgl Kembali'];r=DB.pinjam().map(p=>[p.nama,p.kelas,p.kode,p.judul,p.tglP,p.tglK,p.status,p.tglBali]);fn='log-peminjam.csv';}
+  const csv=[h,...r].map(row=>row.map(v=>`"${(v||'').toString().replace(/"/g,'""')}"`).join(',')).join('\n');
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(csv);
+  a.download=fn;a.click();toast(`✅ ${fn} diunduh!`,'t-ok');
+}
+
+/* ══ INIT ══ */
+renderDashboard();updateBadges();isiDatalistBuku();
+</script>
+</body>
+</html>
