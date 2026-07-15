@@ -6,6 +6,7 @@
 <title>Perpustakaan — KKN Desa Sungai Besar</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
 /* ══════════════════════════════════════════════════════
    DESIGN TOKENS
@@ -670,7 +671,7 @@ tbody tr:hover td { background: var(--sky); }
           <option>Sejarah</option><option>Bahasa &amp; Sastra</option><option>Ensiklopedia</option>
           <option>Komik Edukasi</option><option>Lainnya</option>
         </select>
-        <button class="btn btn-ghost btn-sm" onclick="exportCSV('buku')">⬇ CSV</button>
+        <button class="btn btn-ghost btn-sm" onclick="exportXLSX('buku')">⬇ Excel</button>
       </div>
     </div>
     <div class="tbl-wrap"><table>
@@ -720,7 +721,7 @@ tbody tr:hover td { background: var(--sky); }
         <input id="cari-tamu" placeholder="🔍 Cari nama siswa..." oninput="renderTamu()">
         <input id="flt-tgl-tamu" type="date" onchange="renderTamu()">
         <button class="btn btn-ghost btn-sm" onclick="document.getElementById('flt-tgl-tamu').value='';renderTamu()">Semua</button>
-        <button class="btn btn-ghost btn-sm" onclick="exportCSV('tamu')">⬇ CSV</button>
+        <button class="btn btn-ghost btn-sm" onclick="exportXLSX('tamu')">⬇ Excel</button>
       </div>
     </div>
     <div class="tbl-wrap"><table>
@@ -767,7 +768,7 @@ tbody tr:hover td { background: var(--sky); }
           <option value="Dipinjam">Dipinjam</option>
           <option value="Dikembalikan">Dikembalikan</option>
         </select>
-        <button class="btn btn-ghost btn-sm" onclick="exportCSV('pinjam')">⬇ CSV</button>
+        <button class="btn btn-ghost btn-sm" onclick="exportXLSX('pinjam')">⬇ Excel</button>
       </div>
     </div>
     <div class="tbl-wrap"><table>
@@ -1075,15 +1076,116 @@ function updateBadges(){
 }
 
 /* ══ EXPORT CSV ══ */
-function exportCSV(jenis){
-  let h,r,fn;
-  if(jenis==='buku'){h=['Kode','Judul','Pengarang','Penerbit','Tahun','Kategori','Eksemplar','Rak'];r=DB.buku().map(b=>[b.kode,b.judul,b.penulis,b.penerbit,b.tahun,b.kat,b.eks,b.rak]);fn='katalog-buku.csv';}
-  else if(jenis==='tamu'){h=['Nama','Kelas','Keperluan','Tanggal','Jam Masuk','Jam Keluar'];r=DB.tamu().map(t=>[t.nama,t.kelas,t.perlu,t.tgl,t.masuk,t.keluar]);fn='log-pengunjung.csv';}
-  else{h=['Nama','Kelas','Kode Buku','Judul Buku','Tgl Pinjam','Batas Kembali','Status','Tgl Kembali'];r=DB.pinjam().map(p=>[p.nama,p.kelas,p.kode,p.judul,p.tglP,p.tglK,p.status,p.tglBali]);fn='log-peminjam.csv';}
-  const csv=[h,...r].map(row=>row.map(v=>`"${(v||'').toString().replace(/"/g,'""')}"`).join(',')).join('\n');
-  const a=document.createElement('a');
-  a.href='data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(csv);
-  a.download=fn;a.click();toast(`✅ ${fn} diunduh!`,'t-ok');
+function exportXLSX(jenis){
+  if(typeof XLSX === 'undefined'){
+    toast('⚠️ Koneksi internet diperlukan untuk ekspor Excel','t-err'); return;
+  }
+
+  let judul, headers, rows, namaFile, warna_header;
+
+  if(jenis === 'buku'){
+    judul       = 'Katalog Buku Perpustakaan';
+    namaFile    = 'Katalog-Buku.xlsx';
+    warna_header= '1565C0';
+    headers     = ['No','Kode Buku','Judul Buku','Pengarang','Penerbit','Tahun Terbit','Kategori','Jumlah Eksemplar','Lokasi Rak'];
+    rows        = DB.buku().map((b,i) => [
+      i+1, b.kode||'', b.judul||'', b.penulis||'', b.penerbit||'',
+      b.tahun ? Number(b.tahun) : '', b.kat||'', b.eks ? Number(b.eks) : 0, b.rak||''
+    ]);
+  } else if(jenis === 'tamu'){
+    judul       = 'Log Buku Pengunjung Perpustakaan';
+    namaFile    = 'Log-Pengunjung.xlsx';
+    warna_header= '2E7D32';
+    headers     = ['No','Nama Siswa','Kelas','Keperluan','Tanggal','Jam Masuk','Jam Keluar'];
+    rows        = DB.tamu().map((t,i) => [
+      i+1, t.nama||'', t.kelas||'', t.perlu||'',
+      t.tgl||'', t.masuk||'', t.keluar||'-'
+    ]);
+  } else {
+    judul       = 'Log Buku Peminjam Perpustakaan';
+    namaFile    = 'Log-Peminjam.xlsx';
+    warna_header= '6A1B9A';
+    headers     = ['No','Nama Peminjam','Kelas','Kode Buku','Judul Buku','Tanggal Pinjam','Batas Kembali','Status','Tanggal Kembali'];
+    rows        = DB.pinjam().map((p,i) => [
+      i+1, p.nama||'', p.kelas||'', p.kode||'', p.judul||'',
+      p.tglP||'', p.tglK||'', p.status||'', p.tglBali||'-'
+    ]);
+  }
+
+  // ── Baris judul di baris 1, header kolom di baris 2, data mulai baris 3 ──
+  const wb  = XLSX.utils.book_new();
+  const aoa = [
+    [judul],       // baris 1: judul dokumen
+    [],            // baris 2: kosong
+    headers,       // baris 3: header kolom
+    ...rows        // baris 4+: data
+  ];
+  const ws = XLSX.utils.aoa_to_sheet(aoa);
+
+  // ── Lebar kolom otomatis ──
+  const colWidths = headers.map((h, ci) => {
+    const maxData = rows.reduce((mx, r) => Math.max(mx, String(r[ci]||'').length), 0);
+    return { wch: Math.max(h.length, maxData, 8) + 2 };
+  });
+  ws['!cols'] = colWidths;
+
+  // ── Merge sel judul di baris 1 ──
+  ws['!merges'] = [{ s:{r:0,c:0}, e:{r:0,c:headers.length-1} }];
+
+  // ── Style: judul tebal, header berwarna, data bergaris ──
+  const range = XLSX.utils.decode_range(ws['!ref']);
+
+  for(let C = range.s.c; C <= range.e.c; C++){
+    // Judul (baris 0)
+    const titleCell = XLSX.utils.encode_cell({r:0, c:C});
+    if(!ws[titleCell]) ws[titleCell] = {v:'', t:'s'};
+    ws[titleCell].s = {
+      font:      { bold:true, sz:14, color:{rgb:'1565C0'} },
+      alignment: { horizontal:'center', vertical:'center' },
+    };
+
+    // Header kolom (baris 2)
+    const hCell = XLSX.utils.encode_cell({r:2, c:C});
+    if(!ws[hCell]) continue;
+    ws[hCell].s = {
+      font:      { bold:true, color:{rgb:'FFFFFF'}, sz:11 },
+      fill:      { fgColor:{ rgb: warna_header } },
+      alignment: { horizontal:'center', vertical:'center', wrapText:true },
+      border: {
+        bottom:{ style:'thin', color:{rgb:'FFFFFF'} },
+        right: { style:'thin', color:{rgb:'FFFFFF'} },
+      }
+    };
+  }
+
+  // Baris data: warna selang-seling + border
+  for(let R = 3; R <= range.e.r; R++){
+    const isGanjil = (R - 3) % 2 === 0;
+    for(let C = range.s.c; C <= range.e.c; C++){
+      const cell = XLSX.utils.encode_cell({r:R, c:C});
+      if(!ws[cell]) ws[cell] = {v:'', t:'s'};
+      ws[cell].s = {
+        fill:      { fgColor:{ rgb: isGanjil ? 'EBF5FF' : 'FFFFFF' } },
+        alignment: { vertical:'center', wrapText:false },
+        border: {
+          top:   { style:'thin', color:{rgb:'BBDEFB'} },
+          bottom:{ style:'thin', color:{rgb:'BBDEFB'} },
+          left:  { style:'thin', color:{rgb:'BBDEFB'} },
+          right: { style:'thin', color:{rgb:'BBDEFB'} },
+        }
+      };
+    }
+  }
+
+  // Tinggi baris header & judul
+  ws['!rows'] = [{hpt:28}, {hpt:6}, {hpt:24}];
+
+  // Freeze row header agar tetap terlihat saat scroll
+  ws['!freeze'] = { xSplit:0, ySplit:3 };
+
+  XLSX.utils.book_append_sheet(wb, ws, judul.slice(0,31));
+  XLSX.writeFile(wb, namaFile);
+  toast(`✅ ${namaFile} berhasil diunduh!`, 't-ok');
 }
 
 /* ══ INIT ══ */
