@@ -580,7 +580,7 @@ tbody tr:hover td { background: var(--sky); }
     </div>
     <div class="stat-card">
       <div class="sico" style="background:var(--sun-lt);">📦</div>
-      <div><div class="sval" id="st-eks" style="color:var(--sun-dk);">0</div><div class="slbl">Total Eksemplar</div></div>
+      <div><div class="sval" id="st-eks" style="color:var(--sun-dk);">0</div><div class="slbl">Total Buku</div></div>
     </div>
     <div class="stat-card">
       <div class="sico" style="background:var(--leaf-lt);">👥</div>
@@ -1079,7 +1079,7 @@ function exportXLSX(jenis){
     judul       = 'Katalog Buku Perpustakaan';
     namaFile    = 'Katalog-Buku.xlsx';
     warna_header= '1565C0';
-    headers     = ['No','Kode Buku','Judul Buku','Pengarang','Penerbit','Tahun Terbit','Kategori','Jumlah Eksemplar','Lokasi Rak'];
+    headers     = ['No','Kode Buku','Judul Buku','Pengarang','Penerbit','Tahun Terbit','Kategori','Jumlah Buku','Lokasi Rak'];
     rows        = DB.buku().map((b,i) => [
       i+1, b.kode||'', b.judul||'', b.penulis||'', b.penerbit||'',
       b.tahun ? Number(b.tahun) : '', b.kat||'', b.eks ? Number(b.eks) : 0, b.rak||''
