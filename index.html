@@ -634,7 +634,7 @@ tbody tr:hover td { background: var(--sky); }
             <select id="b-kat">
               <option value="">— Pilih —</option>
               <option>Cerita</option><option>Ilmiah</option>
-              <option>Pengetahuan Umum</option></option><option>Agama</option>
+              <option>Pengetahuan Umum</option><option>Agama</option>
               <option>Seni Budaya</option><option>Lainnya</option>
             </select>
           </div>
@@ -741,7 +741,6 @@ tbody tr:hover td { background: var(--sky); }
         <div class="form-grid">
           <div class="fg form-full"><label>Nama Peminjam ✱</label><input id="pm-nama" placeholder="Nama lengkap siswa"></div>
           <div class="fg"><label>Kelas ✱</label><input id="pm-kelas" placeholder="Contoh: 5B"></div>
-          <div class="fg"><label>Kode Buku</label><input id="pm-kode" placeholder="BK-001" oninput="autoIsiJudul()"></div>
           <div class="fg form-full"><label>Judul Buku ✱</label><input id="pm-judul" placeholder="Ketik judul buku" list="dl-judul"><datalist id="dl-judul"></datalist></div>
           <div class="fg"><label>Tanggal Pinjam ✱</label><input id="pm-tgl-p" type="date"></div>
           <div class="fg"><label>Batas Pengembalian ✱</label><input id="pm-tgl-k" type="date"></div>
@@ -988,11 +987,7 @@ function renderStatTamu(){
 document.getElementById('pm-tgl-p').value=hari();
 (()=>{const d=new Date();d.setDate(d.getDate()+7);document.getElementById('pm-tgl-k').value=d.toISOString().slice(0,10);})();
 function isiDatalistBuku(){ document.getElementById('dl-judul').innerHTML=DB.buku().map(b=>`<option value="${b.judul}">`).join(''); }
-function autoIsiJudul(){
-  const kode=document.getElementById('pm-kode').value.trim().toUpperCase();
-  const b=DB.buku().find(x=>x.kode.toUpperCase()===kode);
-  if(b)document.getElementById('pm-judul').value=b.judul;
-}
+
 function simpanPinjam(){
   const nama=document.getElementById('pm-nama').value.trim();
   const kelas=document.getElementById('pm-kelas').value.trim();
@@ -1001,9 +996,9 @@ function simpanPinjam(){
   const tglK=document.getElementById('pm-tgl-k').value;
   if(!nama||!kelas||!judul||!tglP||!tglK){toast('⚠️ Isi semua kolom bertanda ✱','t-err');return;}
   const data=DB.pinjam();
-  data.unshift({id:uid(),nama,kelas,judul,tglP,tglK,kode:document.getElementById('pm-kode').value.trim(),ket:document.getElementById('pm-ket').value.trim(),status:'Dipinjam',tglBali:''});
+  data.unshift({id:uid(),nama,kelas,judul,tglP,tglK,ket:document.getElementById('pm-ket').value.trim(),status:'Dipinjam',tglBali:''});
   DB.set('pinjam',data);toast('✅ Peminjaman berhasil dicatat!','t-ok');
-  ['pm-nama','pm-kelas','pm-kode','pm-judul','pm-ket'].forEach(x=>document.getElementById(x).value='');
+  ['pm-nama','pm-kelas','pm-judul','pm-ket'].forEach(x=>document.getElementById(x).value='');
   document.getElementById('pm-tgl-p').value=hari();
   const d=new Date();d.setDate(d.getDate()+7);document.getElementById('pm-tgl-k').value=d.toISOString().slice(0,10);
   renderPinjam();renderTelat();updateBadges();
@@ -1031,7 +1026,7 @@ function renderPinjam(){
     return `<tr ${telat?'style="background:#FFF5F5;"':''}>
       <td style="color:var(--gray3);font-size:.78rem;">${data.length-i}</td>
       <td><b>${p.nama}</b></td><td><span class="badge b-purple">${p.kelas}</span></td>
-      <td>${p.judul}${p.kode?`<br><span style="font-size:.7rem;color:var(--gray3);">${p.kode}</span>`:''}</td>
+      <td>${p.judul}</td>
       <td>${fmt(p.tglP)}</td><td>${fmt(p.tglK)}</td><td>${badge}</td><td>${p.tglBali?fmt(p.tglBali):'—'}</td>
       <td style="white-space:nowrap;">${p.status==='Dipinjam'?`<button class="btn btn-leaf btn-xs" onclick="kembalikan('${p.id}')">✅ Kembali</button> `:''}<button class="btn btn-coral btn-xs" onclick="hapusPinjam('${p.id}')">🗑️</button></td>
     </tr>`;
@@ -1102,9 +1097,9 @@ function exportXLSX(jenis){
     judul       = 'Log Buku Peminjam Perpustakaan';
     namaFile    = 'Log-Peminjam.xlsx';
     warna_header= '6A1B9A';
-    headers     = ['No','Nama Peminjam','Kelas','Kode Buku','Judul Buku','Tanggal Pinjam','Batas Kembali','Status','Tanggal Kembali'];
+    headers     = ['No','Nama Peminjam','Kelas','Judul Buku','Tanggal Pinjam','Batas Kembali','Status','Tanggal Kembali'];
     rows        = DB.pinjam().map((p,i) => [
-      i+1, p.nama||'', p.kelas||'', p.kode||'', p.judul||'',
+      i+1, p.nama||'', p.kelas||'', p.judul||'',
       p.tglP||'', p.tglK||'', p.status||'', p.tglBali||'-'
     ]);
   }
