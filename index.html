@@ -330,7 +330,7 @@ tbody tr:hover td { background: var(--sky); }
   <div class="panel">
     <div class="panel-head" style="background:var(--leaf-lt);border-color:var(--leaf-lt);"><h3>👥 Kunjungan Terbaru</h3></div>
     <div class="tbl-wrap"><table>
-      <thead><tr><th>Nama</th><th>Kelas</th><th>Keperluan</th><th>Tanggal</th><th>Masuk</th><th>Keluar</th></tr></thead>
+      <thead><tr><th>Nama</th><th>JK</th><th>Status</th><th>Keperluan</th><th>Tanggal</th><th>Masuk</th><th>Keluar</th></tr></thead>
       <tbody id="db-tamu"></tbody>
     </table></div>
   </div>
@@ -420,7 +420,8 @@ tbody tr:hover td { background: var(--sky); }
           <option>Pengetahuan Umum</option><option>Agama</option>
           <option>Seni Budaya</option><option>Lainnya</option>
         </select>
-        <button class="btn btn-ghost btn-sm" onclick="exportXLSX('buku')">⬇ Ekspor Excel</button>
+        <!-- Tombol Ekspor Khusus Admin -->
+        <button class="btn btn-ghost btn-sm" id="btn-export-buku" onclick="exportXLSX('buku')">⬇ Ekspor Excel</button>
       </div>
     </div>
     <div class="tbl-wrap"><table>
@@ -587,6 +588,7 @@ function updateRoleUI() {
   const tabShelf = document.getElementById('tabShelf');
   const excelPanel = document.getElementById('adminExcelPanel');
   const bookFormCol = document.getElementById('adminBookFormCol');
+  const btnExportBuku = document.getElementById('btn-export-buku');
 
   if (currentRole === 'admin') {
     clearTimeout(visitorTimeoutTimer);
@@ -608,6 +610,7 @@ function updateRoleUI() {
     `;
     if(bookFormCol) bookFormCol.style.display = 'block';
     if(excelPanel) excelPanel.style.display = 'block';
+    if(btnExportBuku) btnExportBuku.style.display = 'inline-flex';
   } else {
     resetVisitorTimeout();
     rightActions.innerHTML = `
@@ -621,6 +624,7 @@ function updateRoleUI() {
     `;
     if(bookFormCol) bookFormCol.style.display = 'none';
     if(excelPanel) excelPanel.style.display = 'none';
+    if(btnExportBuku) btnExportBuku.style.display = 'none';
   }
   tickClock();
   updateBadges();
@@ -717,11 +721,11 @@ function buka(id){
   if(id==='tamu')  { 
     if(currentRole === 'admin') {
       document.getElementById('tamu-page-title').textContent = 'Log Buku Pengunjung';
-      document.getElementById('tamu-page-desc').textContent = 'Catat setiap siswa yang datang ke perpustakaan';
+      document.getElementById('tamu-page-desc').textContent = 'Catat setiap pengunjung yang datang ke perpustakaan';
       renderTamuAdmin();
     } else {
       document.getElementById('tamu-page-title').textContent = 'Catat Kunjungan Perpustakaan';
-      document.getElementById('tamu-page-desc').textContent = 'Halo adik-adik, silakan isi nama dan kelasmu di sini ya!';
+      document.getElementById('tamu-page-desc').textContent = 'Halo, silakan isi data kunjungan Anda di bawah ini!';
       renderTamuVisitor();
     }
   }
@@ -1024,23 +1028,44 @@ function downloadTemplateExcel() {
   toast('✅ Template Excel kosong berhasil didownload!', 't-ok');
 }
 
+// LOG PENGUNJUNG - VISITOR
 function renderTamuVisitor() {
   const container = document.getElementById('tamu-content-container');
   container.innerHTML = `
     <div class="panel" style="max-width: 600px; margin: 0 auto 20px auto;">
-      <div class="panel-head" style="background:var(--leaf-lt);border-color:var(--leaf-lt);"><h3>🌟 Form Kunjungan Siswa</h3></div>
+      <div class="panel-head" style="background:var(--leaf-lt);border-color:var(--leaf-lt);"><h3>🌟 Form Kunjungan Perpustakaan</h3></div>
       <div class="panel-body">
         <div class="form-grid">
-          <div class="fg form-full"><label>Nama Lengkapmu ✱</label><input id="vis-nama" placeholder="Contoh: Budi Santoso"></div>
-          <div class="fg form-full"><label>Kelas ✱</label><input id="vis-kelas" placeholder="Contoh: 3A / 4B / 5"></div>
+          <div class="fg form-full"><label>Nama Lengkap ✱</label><input id="vis-nama" placeholder="Contoh: Budi Santoso"></div>
+          <div class="fg"><label>Jenis Kelamin ✱</label>
+            <select id="vis-jk">
+              <option value="">— Pilih —</option>
+              <option value="Laki-laki">Laki-laki</option>
+              <option value="Perempuan">Perempuan</option>
+            </select>
+          </div>
+          <div class="fg"><label>Status Sebagai ✱</label>
+            <select id="vis-status" onchange="toggleStatusLainnyaVisitor()">
+              <option value="">— Pilih Status —</option>
+              <option value="Siswa">Siswa</option>
+              <option value="Guru">Guru</option>
+              <option value="Swasta">Swasta</option>
+              <option value="Lainnya">Lainnya</option>
+            </select>
+          </div>
+          <div class="fg form-full" id="fg-vis-status-lainnya" style="display:none;">
+            <label>Ketik Status Lainnya ✱</label>
+            <input id="vis-status-lainnya" placeholder="Ketik status Anda (misal: Mahasiswa, Umum, dll)">
+          </div>
+          <div class="fg form-full"><label>Kelas / Instansi</label><input id="vis-kelas" placeholder="Contoh: 3A / ULM / Umum"></div>
         </div>
         <button class="btn btn-leaf" onclick="simpanKunjunganVisitor()" style="margin-top:16px; width:100%; justify-content:center; padding:12px; font-size:1rem;">✅ Catat Kehadiranku</button>
       </div>
     </div>
-    <div class="panel" style="max-width: 600px; margin: 0 auto;">
+    <div class="panel" style="max-width: 650px; margin: 0 auto;">
       <div class="panel-head"><h3>👥 Pengunjung Hari Ini</h3></div>
       <div class="tbl-wrap"><table>
-        <thead><tr><th>Nama</th><th>Kelas</th><th>Jam Masuk</th></tr></thead>
+        <thead><tr><th>Nama</th><th>JK</th><th>Status</th><th>Kelas/Instansi</th><th>Jam Masuk</th></tr></thead>
         <tbody id="vis-tb-tamu"></tbody>
       </table></div>
     </div>
@@ -1048,16 +1073,44 @@ function renderTamuVisitor() {
   updateVisTamuTable();
 }
 
+function toggleStatusLainnyaVisitor() {
+  const val = document.getElementById('vis-status').value;
+  const fg = document.getElementById('fg-vis-status-lainnya');
+  if(fg) fg.style.display = (val === 'Lainnya') ? 'block' : 'none';
+}
+
 function simpanKunjunganVisitor() {
   const nama = document.getElementById('vis-nama').value.trim();
+  const jk = document.getElementById('vis-jk').value;
+  const statusSelect = document.getElementById('vis-status').value;
+  const statusLainnya = document.getElementById('vis-status-lainnya').value.trim();
   const kelas = document.getElementById('vis-kelas').value.trim();
-  if(!nama || !kelas) { toast('⚠️ Masukkan Nama dan Kelas kamu ya!', 't-err'); return; }
+
+  if(!nama || !jk || !statusSelect) { toast('⚠️ Mohon isi Nama, Jenis Kelamin, dan Status!', 't-err'); return; }
+  if(statusSelect === 'Lainnya' && !statusLainnya) { toast('⚠️ Ketikkan status Anda terlebih dahulu!', 't-err'); return; }
+
+  const statusAkhir = (statusSelect === 'Lainnya') ? statusLainnya : statusSelect;
+
   const data = DB.tamu();
-  data.unshift({ id: uid(), nama, kelas, perlu: 'Membaca / Kunjungan', tgl: hari(), masuk: jam(), keluar: '' });
+  data.unshift({ 
+    id: uid(), 
+    nama, 
+    jk, 
+    status: statusAkhir, 
+    kelas: kelas || '-', 
+    perlu: 'Membaca / Kunjungan', 
+    tgl: hari(), 
+    masuk: jam(), 
+    keluar: '' 
+  });
   DB.set('tamu', data);
   toast('🎉 Terima kasih, kunjunganmu berhasil dicatat!', 't-ok');
   document.getElementById('vis-nama').value = '';
+  document.getElementById('vis-jk').value = '';
+  document.getElementById('vis-status').value = '';
+  document.getElementById('vis-status-lainnya').value = '';
   document.getElementById('vis-kelas').value = '';
+  toggleStatusLainnyaVisitor();
   updateVisTamuTable();
   updateBadges();
 }
@@ -1068,12 +1121,19 @@ function updateVisTamuTable() {
   const hariIni = hari();
   const data = DB.tamu().filter(t => t.tgl === hariIni);
   if(!data.length) {
-    tb.innerHTML = `<tr><td colspan="3"><div class="empty"><div class="eico">🎒</div><p>Belum ada siswa yang mencatat kunjungan hari ini.</p></div></td></tr>`;
+    tb.innerHTML = `<tr><td colspan="5"><div class="empty"><div class="eico">🎒</div><p>Belum ada pengunjung yang mencatat kunjungan hari ini.</p></div></td></tr>`;
     return;
   }
-  tb.innerHTML = data.map(t => `<tr><td><b>${t.nama}</b></td><td><span class="badge b-leaf">${t.kelas}</span></td><td>${t.masuk}</td></tr>`).join('');
+  tb.innerHTML = data.map(t => `<tr>
+    <td><b>${t.nama}</b></td>
+    <td><span class="badge b-gray">${t.jk || '-'}</span></td>
+    <td><span class="badge b-purple">${t.status || '-'}</span></td>
+    <td><span class="badge b-leaf">${t.kelas || '-'}</span></td>
+    <td>${t.masuk}</td>
+  </tr>`).join('');
 }
 
+// LOG PENGUNJUNG - ADMIN
 function renderTamuAdmin() {
   const container = document.getElementById('tamu-content-container');
   container.innerHTML = `
@@ -1082,11 +1142,31 @@ function renderTamuAdmin() {
         <div class="panel-head" style="background:var(--leaf-lt);border-color:var(--leaf-lt);"><h3>✏️ Catat Kunjungan Baru</h3></div>
         <div class="panel-body">
           <div class="form-grid">
-            <div class="fg form-full"><label>Nama Siswa ✱</label><input id="pv-nama" placeholder="Nama lengkap siswa"></div>
-            <div class="fg"><label>Kelas ✱</label><input id="pv-kelas" placeholder="Contoh: 4A"></div>
+            <div class="fg form-full"><label>Nama Lengkap ✱</label><input id="pv-nama" placeholder="Nama lengkap pengunjung"></div>
+            <div class="fg"><label>Jenis Kelamin ✱</label>
+              <select id="pv-jk">
+                <option value="">— Pilih —</option>
+                <option value="Laki-laki">Laki-laki</option>
+                <option value="Perempuan">Perempuan</option>
+              </select>
+            </div>
+            <div class="fg"><label>Status Sebagai ✱</label>
+              <select id="pv-status" onchange="toggleStatusLainnyaAdmin()">
+                <option value="">— Pilih Status —</option>
+                <option value="Siswa">Siswa</option>
+                <option value="Guru">Guru</option>
+                <option value="Swasta">Swasta</option>
+                <option value="Lainnya">Lainnya</option>
+              </select>
+            </div>
+            <div class="fg form-full" id="fg-pv-status-lainnya" style="display:none;">
+              <label>Ketik Status Lainnya ✱</label>
+              <input id="pv-status-lainnya" placeholder="Ketik status (misal: Mahasiswa, Umum, dll)">
+            </div>
+            <div class="fg"><label>Kelas / Instansi</label><input id="pv-kelas" placeholder="Contoh: 4A / ULM / Umum"></div>
             <div class="fg"><label>Keperluan ✱</label>
               <select id="pv-perlu">
-                <option value="">— Pilih —</option>
+                <option value="">— Pilih Keperluan —</option>
                 <option>Membaca Buku</option><option>Meminjam Buku</option>
                 <option>Mengembalikan Buku</option><option>Mengerjakan Tugas</option>
                 <option>Mencari Referensi</option><option>Lainnya</option>
@@ -1108,14 +1188,14 @@ function renderTamuAdmin() {
       <div class="panel-head">
         <h3>Riwayat Kunjungan &nbsp;<span style="background:var(--leaf-lt);color:#2E7D32;border-radius:20px;padding:2px 10px;font-size:.78rem;" id="jml-tamu">0</span></h3>
         <div class="filter-row">
-          <input id="cari-tamu" placeholder="🔍 Cari nama siswa..." oninput="renderTamuAdminList()">
+          <input id="cari-tamu" placeholder="🔍 Cari nama pengunjung..." oninput="renderTamuAdminList()">
           <input id="flt-tgl-tamu" type="date" onchange="renderTamuAdminList()">
           <button class="btn btn-ghost btn-sm" onclick="document.getElementById('flt-tgl-tamu').value='';renderTamuAdminList()">Semua</button>
           <button class="btn btn-ghost btn-sm" onclick="exportXLSX('tamu')">⬇ Excel</button>
         </div>
       </div>
       <div class="tbl-wrap"><table>
-        <thead><tr><th>#</th><th>Nama</th><th>Kelas</th><th>Keperluan</th><th>Tanggal</th><th>Masuk</th><th>Keluar</th><th>Aksi</th></tr></thead>
+        <thead><tr><th>#</th><th>Nama</th><th>JK</th><th>Status</th><th>Kelas/Instansi</th><th>Keperluan</th><th>Tanggal</th><th>Masuk</th><th>Keluar</th><th>Aksi</th></tr></thead>
         <tbody id="tb-tamu"></tbody>
       </table></div>
     </div>
@@ -1126,19 +1206,47 @@ function renderTamuAdmin() {
   renderStatTamu();
 }
 
+function toggleStatusLainnyaAdmin() {
+  const val = document.getElementById('pv-status').value;
+  const fg = document.getElementById('fg-pv-status-lainnya');
+  if(fg) fg.style.display = (val === 'Lainnya') ? 'block' : 'none';
+}
+
 function simpanTamuAdmin(){
   if(currentRole !== 'admin') return;
   const nama = document.getElementById('pv-nama').value.trim();
+  const jk = document.getElementById('pv-jk').value;
+  const statusSelect = document.getElementById('pv-status').value;
+  const statusLainnya = document.getElementById('pv-status-lainnya').value.trim();
   const kelas = document.getElementById('pv-kelas').value.trim();
   const perlu = document.getElementById('pv-perlu').value;
   const tgl = document.getElementById('pv-tgl').value;
   const masuk = document.getElementById('pv-masuk').value;
-  if(!nama || !kelas || !perlu || !tgl || !masuk){ toast('⚠️ Isi semua kolom bertanda ✱','t-err'); return; }
+
+  if(!nama || !jk || !statusSelect || !perlu || !tgl || !masuk){ toast('⚠️ Isi semua kolom bertanda ✱','t-err'); return; }
+  if(statusSelect === 'Lainnya' && !statusLainnya){ toast('⚠️ Ketikkan status pengunjung!','t-err'); return; }
+
+  const statusAkhir = (statusSelect === 'Lainnya') ? statusLainnya : statusSelect;
+
   const data = DB.tamu();
-  data.unshift({id:uid(), nama, kelas, perlu, tgl, masuk, keluar: document.getElementById('pv-keluar').value});
+  data.unshift({
+    id: uid(), 
+    nama, 
+    jk, 
+    status: statusAkhir, 
+    kelas: kelas || '-', 
+    perlu, 
+    tgl, 
+    masuk, 
+    keluar: document.getElementById('pv-keluar').value
+  });
   DB.set('tamu', data);
   toast('✅ Kunjungan berhasil dicatat!','t-ok');
-  ['pv-nama','pv-kelas','pv-keluar'].forEach(x=>document.getElementById(x).value='');
+  ['pv-nama','pv-jk','pv-status','pv-status-lainnya','pv-kelas','pv-keluar'].forEach(x=> {
+    const el = document.getElementById(x);
+    if(el) el.value = '';
+  });
+  toggleStatusLainnyaAdmin();
   document.getElementById('pv-perlu').value='';
   document.getElementById('pv-masuk').value=jam();
   renderTamuAdminList(); renderStatTamu(); updateBadges();
@@ -1171,11 +1279,16 @@ function renderTamuAdminList(){
   const data = DB.tamu().filter(t=>(!q||t.nama.toLowerCase().includes(q))&&(!tg||t.tgl===tg));
   document.getElementById('jml-tamu').textContent = data.length;
   const tb = document.getElementById('tb-tamu');
-  if(!data.length){ tb.innerHTML = `<tr><td colspan="8"><div class="empty"><div class="eico">👥</div><p>Belum ada data kunjungan.</p></div></td></tr>`; return; }
+  if(!data.length){ tb.innerHTML = `<tr><td colspan="10"><div class="empty"><div class="eico">👥</div><p>Belum ada data kunjungan.</p></div></td></tr>`; return; }
   tb.innerHTML = data.map((t,i)=>`<tr>
     <td style="color:var(--gray3);font-size:.78rem;">${data.length-i}</td>
-    <td><b>${t.nama}</b></td><td><span class="badge b-leaf">${t.kelas}</span></td>
-    <td><span class="badge b-blue">${t.perlu}</span></td><td>${fmt(t.tgl)}</td><td>${t.masuk}</td>
+    <td><b>${t.nama}</b></td>
+    <td><span class="badge b-gray">${t.jk || '-'}</span></td>
+    <td><span class="badge b-purple">${t.status || '-'}</span></td>
+    <td><span class="badge b-leaf">${t.kelas || '-'}</span></td>
+    <td><span class="badge b-blue">${t.perlu}</span></td>
+    <td>${fmt(t.tgl)}</td>
+    <td>${t.masuk}</td>
     <td>${t.keluar?`<span class="badge b-gray">${t.keluar}</span>`:`<button class="btn btn-sun btn-xs" onclick="catatKeluar('${t.id}')">Catat Keluar</button>`}</td>
     <td><button class="btn btn-coral btn-xs" onclick="hapusTamu('${t.id}')">🗑️</button></td>
   </tr>`).join('');
@@ -1280,7 +1393,7 @@ function renderDashboard(){
 
   document.getElementById('db-buku').innerHTML = buku.slice(0,5).map(b=>`<tr><td><b>${b.judul}</b></td><td>${b.penulis}</td><td><span class="badge b-blue">${b.kat||'Lainnya'}</span></td></tr>`).join('')||`<tr><td colspan="3"><div class="empty" style="padding:12px;"><p>Belum ada buku.</p></div></td></tr>`;
   document.getElementById('db-pinjam').innerHTML = pinjam.filter(p=>p.status==='Dipinjam').slice(0,5).map(p=>{const t=p.tglK<hariIni;return `<tr><td>${p.nama}</td><td><span class="badge b-purple">${p.kelas}</span></td><td>${p.judul}</td><td>${t?`<span class="badge b-coral">${fmt(p.tglK)}</span>`:fmt(p.tglK)}</td></tr>`;}).join('')||`<tr><td colspan="4"><div class="empty" style="padding:12px;"><p>Tidak ada peminjaman aktif.</p></div></td></tr>`;
-  document.getElementById('db-tamu').innerHTML = tamu.slice(0,5).map(t=>`<tr><td>${t.nama}</td><td><span class="badge b-leaf">${t.kelas}</span></td><td>${t.perlu}</td><td>${fmt(t.tgl)}</td><td>${t.masuk}</td><td>${t.keluar||'—'}</td></tr>`).join('')||`<tr><td colspan="6"><div class="empty" style="padding:12px;"><p>Belum ada kunjungan.</p></div></td></tr>`;
+  document.getElementById('db-tamu').innerHTML = tamu.slice(0,5).map(t=>`<tr><td>${t.nama}</td><td><span class="badge b-gray">${t.jk||'-'}</span></td><td><span class="badge b-purple">${t.status||'-'}</span></td><td>${t.perlu}</td><td>${fmt(t.tgl)}</td><td>${t.masuk}</td><td>${t.keluar||'—'}</td></tr>`).join('')||`<tr><td colspan="7"><div class="empty" style="padding:12px;"><p>Belum ada kunjungan.</p></div></td></tr>`;
 }
 
 function updateBadges(){
@@ -1295,6 +1408,7 @@ function updateBadges(){
 
 function exportXLSX(jenis){
   if(typeof XLSX === 'undefined'){ toast('⚠️ Koneksi internet diperlukan untuk ekspor Excel','t-err'); return; }
+  if(currentRole !== 'admin') { toast('❌ Hanya admin yang dapat mengekspor data Excel!', 't-err'); return; }
 
   let judul, headers, rows, namaFile, warna_header;
 
@@ -1333,14 +1447,12 @@ function exportXLSX(jenis){
       b.callno || '000'
     ]);
   } else if(jenis === 'tamu'){
-    if(currentRole !== 'admin') return;
     judul       = 'Log Buku Pengunjung Perpustakaan Sumber Ilmu';
     namaFile    = 'Log-Pengunjung.xlsx';
     warna_header= '2E7D32';
-    headers     = ['No', 'Nama Siswa', 'Kelas', 'Keperluan', 'Tanggal', 'Jam Masuk', 'Jam Keluar'];
-    rows        = DB.tamu().map((t,i) => [i+1, t.nama||'', t.kelas||'', t.perlu||'', t.tgl||'', t.masuk||'', t.keluar||'-']);
+    headers     = ['No', 'Nama Pengunjung', 'Jenis Kelamin', 'Status', 'Kelas / Instansi', 'Keperluan', 'Tanggal', 'Jam Masuk', 'Jam Keluar'];
+    rows        = DB.tamu().map((t,i) => [i+1, t.nama||'', t.jk||'-', t.status||'-', t.kelas||'-', t.perlu||'', t.tgl||'', t.masuk||'', t.keluar||'-']);
   } else {
-    if(currentRole !== 'admin') return;
     judul       = 'Log Buku Peminjam Perpustakaan Sumber Ilmu';
     namaFile    = 'Log-Peminjam.xlsx';
     warna_header= '6A1B9A';
