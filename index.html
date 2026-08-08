@@ -355,8 +355,8 @@ tbody tr:hover td { background: var(--sky); }
         <div class="fg"><label>Edisi ✱</label><input id="b-edisi" placeholder="Contoh: ed 1 / ed 2"></div>
         <div class="fg"><label>Penerbitan ✱</label><input id="b-penerbitan" placeholder="Contoh: Jakarta Timur : Badan Pengembangan, 2022"></div>
         <div class="fg"><label>Deskripsi Fisik ✱</label><input id="b-fisik" placeholder="Contoh: 16 hlm ; ilus ; 22 cm"></div>
-        <div class="fg"><label>ISBN ✱</label><input id="b-isbn" placeholder="Contoh: 978-623-307-705-7"></div>
-        <div class="fg"><label>Lokasi / Nomor Panggil ✱</label><input id="b-callno" placeholder="Contoh: 899.2213"></div>
+        <div class="fg"><label>ISBN (Opsional)</label><input id="b-isbn" placeholder="Contoh: 978-623-307-705-7"></div>
+        <div class="fg"><label>Lokasi / Nomor Panggil (Opsional)</label><input id="b-callno" placeholder="Contoh: 899.2213"></div>
         <div class="fg"><label>Subjek / Kategori</label>
           <select id="b-kat">
             <option value="">— Pilih Kategori —</option>
@@ -753,7 +753,8 @@ function simpanBuku(){
   const bentuk = document.getElementById('b-bentuk').value.trim();
   const target = document.getElementById('b-target').value.trim();
 
-  if(!judul || !penulis || !pj || !edisi || !penerbitan || !fisik || !isbn || !callno){
+  // ISBN dan Lokasi / Nomor Panggil sekarang tidak wajib diisi
+  if(!judul || !penulis || !pj || !edisi || !penerbitan || !fisik){
     toast('⚠️ Isi semua kolom wajib bertanda ✱ !','t-err'); return;
   }
 
@@ -761,7 +762,9 @@ function simpanBuku(){
   if(!id){
     data.unshift({
       id: uid(),
-      judul, penulis, pj, edisi, penerbitan, fisik, isbn, callno,
+      judul, penulis, pj, edisi, penerbitan, fisik, 
+      isbn: isbn || '-', 
+      callno: callno || '-',
       kat: kat || 'Lainnya',
       bahasa: bahasa || 'Indonesia',
       bentuk: bentuk || 'Buku',
@@ -774,7 +777,9 @@ function simpanBuku(){
     if(i>=0){
       data[i] = {
         ...data[i],
-        judul, penulis, pj, edisi, penerbitan, fisik, isbn, callno,
+        judul, penulis, pj, edisi, penerbitan, fisik, 
+        isbn: isbn || '-', 
+        callno: callno || '-',
         kat: kat || data[i].kat,
         bahasa: bahasa || data[i].bahasa,
         bentuk: bentuk || data[i].bentuk,
@@ -806,8 +811,8 @@ function editBuku(id){
   document.getElementById('b-edisi').value = b.edisi || '';
   document.getElementById('b-penerbitan').value = b.penerbitan || '';
   document.getElementById('b-fisik').value = b.fisik || '';
-  document.getElementById('b-isbn').value = b.isbn || '';
-  document.getElementById('b-callno').value = b.callno || '';
+  document.getElementById('b-isbn').value = (b.isbn && b.isbn !== '-') ? b.isbn : '';
+  document.getElementById('b-callno').value = (b.callno && b.callno !== '-') ? b.callno : '';
   document.getElementById('b-kat').value = b.kat || '';
   document.getElementById('b-bahasa').value = b.bahasa || '';
   document.getElementById('b-bentuk').value = b.bentuk || '';
@@ -835,12 +840,12 @@ function renderBuku(){
     edisi: b.edisi || 'ed 1',
     penerbitan: b.penerbitan || `${b.penerbit || 'Jakarta'} : ${b.penerbit || 'Penerbit'}, ${b.tahun || '2024'}`,
     fisik: b.fisik || '16 hlm ; 20 cm',
-    isbn: b.isbn || '978-623-000-000-0',
+    isbn: b.isbn || '-',
     kat: b.kat || 'Lainnya',
     bahasa: b.bahasa || 'Indonesia',
     bentuk: b.bentuk || 'Buku',
     target: b.target || 'Umum',
-    callno: b.callno || b.rak || '000'
+    callno: b.callno || b.rak || '-'
   }));
 
   const filtered = data.filter(b => (!q || b.judul.toLowerCase().includes(q) || b.penulis.toLowerCase().includes(q) || b.isbn.toLowerCase().includes(q)) && (!kat || b.kat === kat));
@@ -949,12 +954,12 @@ function processExcelFile(file) {
             edisi: edisi || 'ed 1',
             penerbitan: penerbitan || 'Jakarta : Penerbit, 2024',
             fisik: fisik || '16 hlm ; 20 cm',
-            isbn: isbn || '978-623-000-000-0',
+            isbn: isbn || '-',
             kat: kat || 'Lainnya',
             bahasa: bahasa || 'Indonesia',
             bentuk: bentuk || 'Buku',
             target: target || 'Umum',
-            callno: callno || '000',
+            callno: callno || '-',
             dibuat: hari()
           });
           importedCount++;
@@ -986,12 +991,12 @@ function downloadTemplateExcel() {
     'Edisi',
     'Penerbitan',
     'Deskripsi Fisik',
-    'ISBN',
+    'ISBN (Opsional)',
     'Subjek / Kategori',
     'Bahasa',
     'Bentuk Karya',
     'Target Pembaca',
-    'Lokasi / Nomor Panggil'
+    'Lokasi / Nomor Panggil (Opsional)'
   ];
 
   const sampleRow = [
@@ -1439,12 +1444,12 @@ function exportXLSX(jenis){
       b.edisi || 'ed 1',
       b.penerbitan || 'Jakarta : Penerbit, 2024',
       b.fisik || '16 hlm ; 20 cm',
-      b.isbn || '',
+      b.isbn || '-',
       b.kat || 'Lainnya',
       b.bahasa || 'Indonesia',
       b.bentuk || 'Buku',
       b.target || 'Umum',
-      b.callno || '000'
+      b.callno || '-'
     ]);
   } else if(jenis === 'tamu'){
     judul       = 'Log Buku Pengunjung Perpustakaan Sumber Ilmu';
