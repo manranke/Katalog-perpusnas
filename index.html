@@ -207,16 +207,20 @@ tbody tr:hover td { background: var(--sky); }
 
 /* ---------- MOBILE (<=640px) ---------- */
 @media (max-width: 640px) {
-  /* Row 1: ULM logo pojok kiri, KKN logo + aksi pojok kanan.
-     Row 2 (full width, turun baris): judul & subjudul di tengah. */
+  /* Baris 1: logo ULM pojok kiri, logo KKN pojok kanan (murni sejajar).
+     Baris 2 (full width): judul & subjudul, di tengah.
+     Baris 3 (full width): jam + nama admin + tombol Password/Keluar, rapi di tengah.
+     Trik: .header-right dibuat "display:contents" supaya anak-anaknya (logo KKN &
+     blok aksi) jadi flex-item langsung milik .site-header — sehingga logo dan blok
+     aksi bisa ditaruh di baris yang berbeda tanpa terjebak lebar kotak induk yang
+     tidak sama (itu penyebab tampilan renggang/berantakan sebelumnya). */
   .site-header { flex-direction: row; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; padding: 10px 14px; gap: 8px 10px; text-align: left; }
 
-  .header-left { order: 1; flex: 0 1 auto; width: auto; justify-content: flex-start; }
-
-  .header-right { order: 2; flex: 0 1 auto; width: auto; max-width: 60%; flex-direction: column; align-items: flex-end; gap: 6px; }
-  .header-right .header-logo { justify-content: flex-end; width: auto; }
-
+  .header-left  { order: 1; flex: 0 1 auto; width: auto; justify-content: flex-start; }
+  .header-right { display: contents; }
+  .header-right .header-logo { order: 2; flex: 0 1 auto; width: auto; justify-content: flex-end; }
   .header-center { order: 3; flex: 1 0 100%; padding: 2px 0; }
+  .header-right .header-right-col { order: 4; flex: 1 0 100%; align-items: center; gap: 6px; margin-top: 2px; }
 
   .header-logo img { height: 34px; width: 34px; }
   .logo-info .name { font-size: .68rem; }
@@ -225,11 +229,10 @@ tbody tr:hover td { background: var(--sky); }
   .header-center .sub-title { font-size: .64rem; }
 
   /* blok aksi (jam/nama admin/tombol) di-generate JS sebagai <div> polos;
-     paksa tiap barisnya wrap & rata-kanan di dalam kotak pojok-kanan, tidak pernah meluber */
-  .header-right-col { width: 100%; align-items: flex-end; gap: 6px; }
-  .header-right-col > div { flex-wrap: wrap; justify-content: flex-end; width: 100%; row-gap: 6px; }
-  #clockBox { font-size: .64rem; padding: 3px 8px; }
-  .admin-meta { font-size: .64rem; text-align: right; white-space: normal; max-width: 100%; }
+     paksa tiap barisnya wrap & center, tidak pernah meluber */
+  .header-right .header-right-col > div { flex-wrap: wrap; justify-content: center; width: 100%; row-gap: 6px; }
+  #clockBox { font-size: .68rem; padding: 3px 9px; }
+  .admin-meta { font-size: .68rem; text-align: center; white-space: normal; max-width: 100%; }
 
   .tab-shelf { padding: 0 8px; scroll-snap-type: x proximity; }
   .tab-btn { padding: 9px 13px 11px; font-size: .8rem; gap: 5px; scroll-snap-align: start; min-height: 40px; flex-shrink: 0; }
